@@ -93,7 +93,7 @@ colors = ['darkorange', 'royalblue', 'seagreen', 'crimson', 'deeppink']
 
 for ax, y, label, color in zip(axs, data, labels, colors):
     ax.plot(t_vals, y, color=color, lw=1.6)
-    ax.set_ylabel(label, fontsize=11)
+    ax.set_ylabel(label, fontsize=12)
     ax.grid(True, alpha=0.25, linestyle='--')
     ax.tick_params(axis='both', which='major', pad=4)
 
@@ -113,7 +113,7 @@ ax_m.annotate('Üzemanyag elfogy',
               xytext=(0.3, 1.07),            # axes fraction: középen az axis felett
               textcoords='axes fraction',
               ha='center', va='bottom',
-              fontsize=11,
+              fontsize=12,
             #   fontweight='bold',
               bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.95, edgecolor='gray'),
               arrowprops=dict(arrowstyle='-|>', lw=0.92, color='gray', connectionstyle='arc3,rad=0.10'),
@@ -127,7 +127,7 @@ ax_v.annotate('$v = 0$ (tetőpont)',
               xytext=(0.98, 0.62),           # axes fraction: jobb oldalon
               textcoords='axes fraction',
               ha='right', va='center',
-              fontsize=11,
+              fontsize=12,
             #   fontweight='bold',
               bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.95, edgecolor='black'),
               arrowprops=dict(arrowstyle='->', lw=0.9, color='black', connectionstyle='arc3,rad=0.0'),
@@ -146,13 +146,13 @@ param_lines = [
 param_text = '\n'.join(param_lines)
 
 fig.text(0.87, 0.50, param_text,
-         fontsize=13,
+         fontsize=12,
          ha='left', va='center',
          family='serif',
          bbox=dict(boxstyle='round,pad=0.6', facecolor='white', edgecolor='gray', alpha=0.95))
 
 # Főcím és x-label
-fig.suptitle('Egyszerű rakéta szimuláció', fontsize=15, fontweight='semibold')
-axs[-1].set_xlabel('Idő (s)', fontsize=11)
+fig.suptitle('Egyszerű rakéta szimuláció', fontsize=15)
+axs[-1].set_xlabel('Idő (s)', fontsize=12)
 
 plt.show()
