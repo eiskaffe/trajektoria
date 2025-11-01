@@ -410,6 +410,13 @@ Helyettesítsük ezt be a közegellenállást leíró \ref{eq:kozegellenallas}. 
     F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - k\frac{1}{2}A\varrho_0 e^{-h/H}v^2
 \end{equation}
 
+A számítások pontosságán tovább javíthatunk, ha a légköri nyomást nem egyenlettel, hanem valós mért adatokkal összevetve hasonlítjuk össze.
+Erre a célra Az USSA 1976-os légköri mérések \cite{NNU76} nyújtják a legpontosabb eredményeket. 
+
+\begin{equation}
+    F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - k\frac{1}{2}A\varrho(h)v^2
+\end{equation}
+
 \subsection{A szimuláció leírása}
 A szimulációt előretartó Euler módszerrel fogom megvalósítani. A diszkrét idejű szimulációnkban a sebesség a következő $k+1$-edik időpillanatban:
 \[a[k] = \frac{F[k]}{m[k]} = \frac{\Delta v [k]}{\Delta t}\]
@@ -429,10 +436,11 @@ Azért kapott negatív előjelet, $\dot{m}$, mert negatív tömegváltozásról 
     m[k+1] = m[k] - \dot{m}\Delta t
 \end{equation}
 
+
 % --------------------------------------------------    
 % Irodalomjegyzék
 % --------------------------------------------------
-\newpage
+\clearpage
 \printbibliography
 
 % --------------------------------------------------
