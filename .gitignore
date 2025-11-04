@@ -535,3 +535,4 @@ TSWLatexianTemp*
 
 # Temporary files
 tmp/*
+.xls#

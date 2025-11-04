@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import ussa1976
 
-# Paraméterek
+# Rakéta paraméterei
 
-F_t = 400          # [kg m s^-2] = [N] A motor tolóereje
-I_sp = 200         # [s] a rakéta hajtómű(vek) eredő specifikus impulzusa
-k = 0.6            # [-] A rakéta alaki tényezője
-D = 0.3            # [m] Rakéta átmérője
-m_uzemanyag = 2  # [kg] üzemanyagtömege
-m_szaraz = 4     # [kg] a rakéta 'száraztömege', üzemanyag nélkül
+F_t = 400            # [kg m s^-2] = [N] A motor tolóereje
+I_sp = 200           # [s] a rakéta hajtómű(vek) eredő specifikus impulzusa
+C_d = 0.6              # [-] A rakéta alaki tényezője / légellenelási együtthatója
+D = 0.3              # [m] Rakéta átmérője
+m_uzemanyag = 2      # [kg] üzemanyagtömege
+m_szaraz = 4         # [kg] a rakéta 'száraztömege', üzemanyag nélkül
 
-
+D_e = 0.8            # [m] Az ejtőernyő átmérője
+C_e = 1.3            # [-] Az ejtőernyő légellenelási együtthatója
+t_infl = 0.6        # [s] Az ejtőernyő kinyílásának sebessége
+t_kesl = 1.2         # [s] Az ejtőernyő kinyitásának késleltetése a tetőpont után.
 
 # Szimulációs paraméterek
 dt = 0.001         # [s] lépésköz (mintavételezési) időtartam
@@ -36,7 +39,9 @@ V_e = I_sp*g_0
 t = 0
 v_e = V_e + 0
 A = ((D/2)**2)*np.pi  # [m^2] a homlokfelület nagysága
+A_0 = ((D_e/2)**2)*np.pi
 mdot = F_t / (I_sp*g_0)         # [kg/s] tömegáram
+t_0 = np.inf            # [s] ejtőernyő kiröpítésének kezdete:
 
 t_vals, m_vals, v_vals, h_vals, F_vals, Q_vals = [], [], [], [], [], []
 
@@ -76,16 +81,25 @@ def rho_ussa1976(z_min_m=0.0, z_max_m=30000.0, step_m=100.0):
 rho_q_fn, _ = rho_ussa1976(z_min_m=0.0, z_max_m=voa*voa / (2*g_0), step_m=1.0)
 
 def F(m, h, v):
-    return mdot*v_e - gamma*M_F*m / ((R_F + h)**2) - 0.5*k*A*(rho_q_fn(h))*(v**2)*np.sign(v)
+    f = mdot*v_e    # tolóerő
+    f -= gamma*M_F*m / ((R_F + h)**2)   # gravitációs erő
+    f -= 0.5*C_d*A*(rho_q_fn(h))*(v**2)*np.sign(v) # rakéta légellenállása
+    if not np.isinf(t_0): 
+        f -= 0.5*C_e*(A_0 / (1 + np.exp(-6*(t-t_0-t_kesl)/t_infl)))*(rho_q_fn(h))*(v**2)*np.sign(v) # ejtőernyő légellenállása
 
-print("Szimuláció start")
+    return f
+
+print("Szimuláció start.")
 while t <= tmax:
+    if t > 0.1 and np.average(v_vals[int(-(0.1//dt)):]) < 0 and np.isinf(t_0):
+        t_0 = t
+    
     f = F(m, h, v)
     
     v += f*dt/m
     h += v*dt
     
-    if h < 0 or v < -10: break
+    if h < 0: break
     
     if m > m_szaraz: m -= mdot*dt
     else: v_e = 0
@@ -95,10 +109,10 @@ while t <= tmax:
     v_vals.append(v)
     h_vals.append(h)
     F_vals.append(f)
-    Q_vals.append(0.5*rho_0*(np.e**(-h/H))*(v**2))
+    Q_vals.append(0.5*rho_q_fn(h)*(v**2))
     
     t += dt
-print("Szimuláció vége")
+print(f"Szimuláció vége. k={int(np.round(t/dt))}")
 
 
 # -----------------
@@ -145,6 +159,9 @@ for ax, y, label, color in zip(axs, data, labels, colors):
         ax.axvline(t_fuel_end, color='gray', linestyle='--', lw=1.2, zorder=3)
     if t_v_zero is not None:
         ax.axvline(t_v_zero, color='black', linestyle=':', lw=1.2, zorder=3)
+    if not np.isinf(t_0):
+        ax.axvline(t_0 + t_kesl, color='gray', linestyle='dashdot', lw=1.2, zorder=3)
+        # ax.axvline(t_0 + t_kesl + t_infl, color='gray', linestyle='dashdot', lw=1.2, zorder=3)
 
 # "Üzemanyag elfogy" címke az m-plot fölött, ha ismert
 ax_m = axs[0]
@@ -152,20 +169,6 @@ if t_fuel_end is not None:
     y_annot = max(m_vals) if len(m_vals) else m_szaraz
     ax_m.annotate('Üzemanyag elfogy',
                   xy=(t_fuel_end, m_szaraz),
-                  xycoords='data',
-                  xytext=(0.3, 1.07),
-                  textcoords='axes fraction',
-                  ha='center', va='bottom',
-                  fontsize=11,
-                  bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.95, edgecolor='gray'),
-                  arrowprops=dict(arrowstyle='-|>', lw=0.9, color='gray', connectionstyle='arc3,rad=0.10'),
-                  zorder=6)
-
-# 'v=0' jelölés a v-axison (ha ismert)
-ax_v = axs[1]
-if t_v_zero is not None:
-    ax_v.annotate('$v = 0$ (tetőpont)',
-                  xy=(t_v_zero, 0.0),
                   xycoords='data',
                   xytext=(0.98, 0.62),
                   textcoords='axes fraction',
@@ -175,16 +178,47 @@ if t_v_zero is not None:
                   arrowprops=dict(arrowstyle='->', lw=0.9, color='black', connectionstyle='arc3,rad=0.0'),
                   zorder=6)
 
+# 'v=0' jelölés a v-axison (ha ismert)
+ax_v = axs[1]
+if t_v_zero is not None:
+    ax_v.annotate('$v = 0$ (tetőpont)',
+                  xy=(t_v_zero, v_vals[int(t_v_zero//dt)]),
+                  xycoords='data',
+                  xytext=(0.98, 0.62),
+                  textcoords='axes fraction',
+                  ha='right', va='center',
+                  fontsize=11,
+                  bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.95, edgecolor='black'),
+                  arrowprops=dict(arrowstyle='->', lw=0.9, color='black', connectionstyle='arc3,rad=0.0'),
+                  zorder=6)
+    
+if not np.isinf(t_0):
+    axs[3].annotate('ejtőernyő kinyitása',
+                  xy=(t_0+t_kesl, F_vals[int((t_0+t_kesl)//dt)]),
+                  xycoords='data',
+                  xytext=(0.98, 0.08),
+                  textcoords='axes fraction',
+                  ha='right', va='center',
+                  fontsize=11,
+                  bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.95, edgecolor='black'),
+                  arrowprops=dict(arrowstyle='->', lw=0.9, color='black', connectionstyle='arc3,rad=0.0'),
+                  zorder=6)
+
 # Paraméterdoboz (jobb oldalon)
 param_lines = [
-    fr'$F_T = {F_t} \mathrm{{N}}$',
+    fr'$F_T = {F_t}\ \mathrm{{N}}$',
     fr'$\dot{{m}} = {mdot:.3g}\ \mathrm{{kg/s}}$',
     fr'$I_{{sp}} = {I_sp}\ \mathrm{{s}}$',
-    fr'$k = {k:.3g}$',
+    fr'$C_d = {C_d:.3g}$',
     fr'$A = {A:.3g}\ \mathrm{{m^2}}$',
     fr'$m_{{0}} = {m_uzemanyag:.3g}\ \mathrm{{kg}}$',
     fr'$m_{{sz}} = {m_szaraz:.3g}\ \mathrm{{kg}}$',
-    fr'$\Delta t = {dt:.3g}\ \mathrm{{s}}$'
+    fr'$\Delta t = {dt:.3g}\ \mathrm{{s}}$',
+    fr"",
+    fr"$A_0 = {A_0:.3g}\ \mathrm{{m^2}}$",
+    fr"$C_e = {C_e}$",
+    fr"$t_\text{{késl}} = {t_kesl}\ \mathrm{{s}}$",
+    fr"$t_\text{{infl}} = {t_infl}\ \mathrm{{s}}$"
 ]
 param_text = '\n'.join(param_lines)
 

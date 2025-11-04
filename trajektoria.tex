@@ -371,6 +371,17 @@ Vezessük be az $\dot{m} = \dfrac{\Delta m}{\Delta t}$ kilépő tömegáramot. E
     \vec{F_t} = -\dot{m}\vec{v_e}
 \end{equation}
 
+Szebben ezt máshogyan szokás leírni. Feltételezhetjük, hogy a rakéta motorunk tolóereje konstans, vagy valami függvény leírja annak mértékét. A rakétatechnikában
+a rakéták meghajtójának hatékonyságára az $I_{sp}$ specifikus impulzust szokás használni. Definíció szerint ez az az időmennyiség, ameddig a rakéta hajtóműve
+tolóerőt fejt ki, a rakéta tolóerejének megfelelő üzemanyag súlya mellett. Azaz:
+\begin{equation}
+    F_t = I_{sp} g_0 \dfrac{\dd m}{\dd t}
+\end{equation}
+Akkor ezek alapján a tömegáram:
+\begin{equation}
+    \dot{m} = \frac{F_t}{I_{sp}g_0}
+\end{equation}
+
 Vizsgáljuk a többi erőt is. A nehézségi erő a magasság és a tömegfüggvényében is változik. A rakétánkat a Földről indítjuk tengerszinten, a Föld
 tömegközéppontjától $R_E = \qty{6,378}{km}$ magasságról. A Newton-féle gravitációs erő:
 \begin{equation}
@@ -435,6 +446,46 @@ Azért kapott negatív előjelet, $\dot{m}$, mert negatív tömegváltozásról 
 \begin{equation}
     m[k+1] = m[k] - \dot{m}\Delta t
 \end{equation}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.847\linewidth]{figures/sim_nochute.pdf}
+    \caption{\centering Az elkészült szimuláció egy példa rakétával. Vegyük észre, hogy a tetőpont elérése után zuhanni kezd a rakéta, majd körülbelül $\qty{40}{m/s}$ sebességgel
+    becsapódik az a talajba.}
+    \label{fig:sim-nochute}
+\end{figure}
+
+\newpage
+\subsection{Ejtőernyők}
+Egyenlőre még csak kisebb rakétákban gondolkodjunk, amelyekre tegyük fel, hogy függőlegesen haladnak. A biztonságos földetéréshez használjunk ejtőernyőket. 
+Vizsgáljuk meg az ejtőernyő hatását a rakétára. Az ejtőernyőket biztosan csak a tetőpont után fogjuk kinyitni, szeretnénk, hogy az minél magasabbra repüljön. Tegyük fel, hogy a 
+rakétánk tudja érzékelni a magasasságot (pl: barométerből), és annak időbeli változását (magát a sebességet). Következésképp érzékelheti azt is, amikor a légköri nyomás
+a növekedsből csökkenésbe vált át, és az egy huzamosabb ideig tart, illetve ha a többi szenzorok is megerősítik, hogy a rakéta lefelé gyorsul, akkor 'kilőhetjük' az ejtőernyőinket.
+
+Az ejtőernyőt a modellünkben $C_e$ (nem összekeverendő a rakéta $C_d$-jével) közegellenállási együtthatóval, az ejtőerynő $A_0$ homlokfelületével és $t_{infl}$ kinyílási sebességgel jellemezhetjük.
+Közelítsük az ejtőernyő homlokfelületének nagyságát az időben a kinyílási parancs után az alábbi szigmoid függvénnyel:
+\begin{equation*}
+    A(t) = A_0\frac{1}{1 + \exp\left(-\dfrac{t}{\sigma}\right)}
+\end{equation*}
+ahol legyen $\sigma \approx t_{infl} / 6$. Tehát akkor az ejtőernyő homlokfelülete:
+\begin{equation}
+    A(t) = \dfrac{A_0}{1 + \exp\left(-\dfrac{6t}{t_{infl}}\right)}
+\end{equation}
+
+Vizsgáljuk meg a rakéta végsebességét, azután miután az ernyők már kinyíltak és a rakéta beállt egy $v_\text{vég}$ sebességre. A rakétára ható erők ekkor kiegyenlítik egymást, azaz:
+\begin{equation*}
+    mg - C_e \frac{1}{2} A_0 \varrho v^2 = 0
+\end{equation*}
+És ebből a végsebesség:
+\begin{equation}
+    v_\text{vég} = \sqrt{\dfrac{2mg}{C_eA_0\varrho}}
+\end{equation}
+Célszerű akkora homlokfelületű ejtőernyőt választani, amivel biztonságosan talajt érhet a rakéta érdemes a $v_\text{vég}$ végsebességet $\qty{6}{m/s}$ alattira választani,
+hogy ne szenvedjen a rakéta bármiféle sérülést. A homlokfelület nagysága, ha a kívánt maximális végsebesség ismert:
+\begin{equation}
+    A_0 = \dfrac{2mg}{C_e \varrho v_\text{vég}^2}
+\end{equation}
+
+Építsük be az ejtőernyő működését a szimulációnkba! A tetőpont elérése után $t_\text{késl}$ idő múlva fogunk jelet adni az ejtőernyőnek kinyílásra. 
 
 
 % --------------------------------------------------    
