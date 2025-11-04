@@ -384,10 +384,10 @@ ahol $m$ és $M$ a két test tömege, $r$ pedig a középpontjaik távolsága. E
 
 Most vizsgáljuk a közegellenállás erejét. Képlet alapján a közegellenállás:
 \begin{equation}
-    \vec{F_k} = - k\frac{1}{2}A\varrho\vec{v}^2
+    \vec{F_k} = - C_d\frac{1}{2}A\varrho\vec{v}^2
     \label{eq:kozegellenallas}
 \end{equation}
-ahol $k$ az alaki tényező, $A$ a test homlokfelülete (az a felület amely merőleges $\vec{v}$-re), $\varrho$ pedig a levegő sűrűsége. Modellezzük most a levehő sűrűségének
+ahol $C_d$ az alaki tényező, $A$ a test homlokfelülete (az a felület amely merőleges $\vec{v}$-re), $\varrho$ pedig a levegő sűrűsége. Modellezzük most a levehő sűrűségének
 magasság függését a barometrikus egyenlettel:
 \begin{equation}
     \varrho = \varrho_0 e^{-\frac{gh}{RT}}
@@ -399,7 +399,7 @@ ahol $\varrho_0$ a tengerszinten lévő légnyomás, $R$ az univerzális gázál
 \end{equation}
 Helyettesítsük ezt be a közegellenállást leíró \ref{eq:kozegellenallas}. egyenletbe.
 \begin{equation}
-    \vec{F_k}(h,\vec{v}) = - k\frac{1}{2}A\varrho_0 e^{-h/H}\vec{v}^2
+    \vec{F_k}(h,\vec{v}) = - C_d\frac{1}{2}A\varrho_0 e^{-h/H}\vec{v}^2
 \end{equation}
 
 Összesítve tehát a rakátára ható eredő erő:
@@ -407,14 +407,14 @@ Helyettesítsük ezt be a közegellenállást leíró \ref{eq:kozegellenallas}. 
     F = F_t - F_g - F_k
 \end{equation*}
 \begin{equation}
-    F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - k\frac{1}{2}A\varrho_0 e^{-h/H}v^2
+    F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - C_d\frac{1}{2}A\varrho_0 e^{-h/H}v^2
 \end{equation}
 
 A számítások pontosságán tovább javíthatunk, ha a légköri nyomást nem egyenlettel, hanem valós mért adatokkal összevetve hasonlítjuk össze.
 Erre a célra Az USSA 1976-os légköri mérések \cite{NNU76} nyújtják a legpontosabb eredményeket. 
 
 \begin{equation}
-    F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - k\frac{1}{2}A\varrho(h)v^2
+    F(m,\,h,\,v) = \dot{m}v_e - \gamma M_F\dfrac{m}{(R_E + h)^2} - C_d\frac{1}{2}A\varrho(h)v^2
 \end{equation}
 
 \subsection{A szimuláció leírása}

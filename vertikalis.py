@@ -3,6 +3,21 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import ussa1976
 
+# Paraméterek
+
+F_t = 400          # [kg m s^-2] = [N] A motor tolóereje
+I_sp = 200         # [s] a rakéta hajtómű(vek) eredő specifikus impulzusa
+k = 0.6            # [-] A rakéta alaki tényezője
+D = 0.3            # [m] Rakéta átmérője
+m_uzemanyag = 2  # [kg] üzemanyagtömege
+m_szaraz = 4     # [kg] a rakéta 'száraztömege', üzemanyag nélkül
+
+
+
+# Szimulációs paraméterek
+dt = 0.001         # [s] lépésköz (mintavételezési) időtartam
+tmax = 500         # [s] maximális vizsgált időtartam.
+
 # Konstansok
 R_F = 6378e3        # [m] Föld sugara
 M_F = 5.972e24      # [kg] Föld tömege
@@ -11,31 +26,25 @@ rho_0 = 1.225       # [kg/m^3] tengerszinti levegő sűrűség
 H = 8.4e3           # [m] Skálamagasság
 g_0 = 9.80665       # [m/s^2] Nehézségi gyorsulás
 
-# Paraméterek
-mdot = 0.17847           # [kg/s] tömegáram
-# V_e = 1000           # [m/s] exhaust velocity
-I_sp = 200        # [s] a rakéta hajtómű(vek) eredő specifikus impulzusa
-k = 0.4            # [-] A rakéta alaki tényezője
-d = 0.15            # [m]
-m_uzemanyag = 10   # [kg] üzemanyagtömege
-m_szaraz = 8       # [kg] a rakéta 'száraztömege', üzemanyag nélkül
-
-# Szimulációs paraméterek
-dt = 0.001           # [s] lépésköz (mintavételezési) időtartam
-tmax = 500     # [s] maximális vizsgált időtartam.
-
-
 # Állapotváltozók
 m = m_uzemanyag + m_szaraz
 v = 0.0
 h = 0.0
 
+# Számított paraméterek
 V_e = I_sp*g_0
 t = 0
 v_e = V_e + 0
-A = ((d/2)**2)*np.pi  # [m^2] a homlokfelület nagysága
+A = ((D/2)**2)*np.pi  # [m^2] a homlokfelület nagysága
+mdot = F_t / (I_sp*g_0)         # [kg/s] tömegáram
 
 t_vals, m_vals, v_vals, h_vals, F_vals, Q_vals = [], [], [], [], [], []
+
+def tsiolkovsky():
+    return v_e * np.log((m_uzemanyag + m_szaraz) / m_szaraz)
+
+print(f"Sanity check (Tsiolkovsky): {(voa := tsiolkovsky())}")
+print(f"h_max kb @ {voa*voa / (2*g_0)}")
 
 def rho_barometrikus(h):
     return rho_0*np.e**(-h/H)
@@ -64,16 +73,11 @@ def rho_ussa1976(z_min_m=0.0, z_max_m=30000.0, step_m=100.0):
         return out
 
     return rho_lookup, {"z_grid": z_grid, "rho_grid": rho_grid, "step_m": step_m}
-rho_q_fn, _ = rho_ussa1976(z_min_m=0.0, z_max_m=100000.0, step_m=10.0)
-
-def tsiolkovsky():
-    return v_e * np.log((m_uzemanyag + m_szaraz) / m_szaraz)
+rho_q_fn, _ = rho_ussa1976(z_min_m=0.0, z_max_m=voa*voa / (2*g_0), step_m=1.0)
 
 def F(m, h, v):
     return mdot*v_e - gamma*M_F*m / ((R_F + h)**2) - 0.5*k*A*(rho_q_fn(h))*(v**2)*np.sign(v)
 
-print(f"Sanity check (Tsiolkovsky): {(voa := tsiolkovsky())}")
-print(f"h_max kb @ {voa*voa / (2*g_0)}")
 print("Szimuláció start")
 while t <= tmax:
     f = F(m, h, v)
@@ -81,7 +85,7 @@ while t <= tmax:
     v += f*dt/m
     h += v*dt
     
-    if h < 0: break
+    if h < 0 or v < -10: break
     
     if m > m_szaraz: m -= mdot*dt
     else: v_e = 0
@@ -173,6 +177,7 @@ if t_v_zero is not None:
 
 # Paraméterdoboz (jobb oldalon)
 param_lines = [
+    fr'$F_T = {F_t} \mathrm{{N}}$',
     fr'$\dot{{m}} = {mdot:.3g}\ \mathrm{{kg/s}}$',
     fr'$I_{{sp}} = {I_sp}\ \mathrm{{s}}$',
     fr'$k = {k:.3g}$',
@@ -183,14 +188,14 @@ param_lines = [
 ]
 param_text = '\n'.join(param_lines)
 
-fig.text(0.88, 0.50, param_text,
+fig.text(0.875, 0.50, param_text,
          fontsize=11,
          ha='left', va='center',
          family='serif',
          bbox=dict(boxstyle='round,pad=0.6', facecolor='white', edgecolor='gray', alpha=0.95))
 
 # Főcím és x-label
-fig.suptitle('Egyszerű rakéta szimuláció', fontsize=15)
+# fig.suptitle('Egyszerű rakéta szimuláció', fontsize=15)
 axs[-1].set_xlabel('Idő (s)', fontsize=12)
 
 plt.show()
