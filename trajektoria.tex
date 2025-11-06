@@ -485,8 +485,30 @@ hogy ne szenvedjen a rakéta bármiféle sérülést. A homlokfelület nagysága
     A_0 = \dfrac{2mg}{C_e \varrho v_\text{vég}^2}
 \end{equation}
 
+\newpage
 Építsük be az ejtőernyő működését a szimulációnkba! A tetőpont elérése után $t_\text{késl}$ idő múlva fogunk jelet adni az ejtőernyőnek kinyílásra. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.847\linewidth]{figures/ejtoernyos.pdf}
+    \caption{\centering Az ejtőernyő kinyílásával kiegészített szimuláció. A rakéta most "kellemesebb" $\qty{7}{m/s}$ sebességgel csapódik a talajnak. A \ref{fig:sim-nochute}.
+    ábrával összevetve láthatjuk, hogy most a leérkezési idő sokkal hosszabb és lassabb, de biztonságosabb a rakétánk számára.}
+    \label{fig:sim-chute}
+\end{figure}
 
+\newpage
+\subsection{Időben változó tolóerő}
+A valóságban a rakéta motorok tolóereje nem konstans, ami $0$-ról pillanatszerűen tud $F_T$ tolóerőt kifejteni. Szimulációnkban tegyük fel, hogy szilárd üzemanyagú
+motorrokkal dolgozunk. Ezeknek három fajtáját tekintjük most az alapján, hogy az időben hogyan változnak a tolóerejük. Ezt a \ref{fig:regsemprog}. ábra szemlélteti.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.847\linewidth]{figures/regsemprog.pdf}
+    \caption{\centering Regresszív, semleges és progresszív típusú rakéta motorok tolóerejének időfüggése. Megjegyzendő, hogy mindegyik motor erőgörbe alatti területe
+    megegyezik, azaz a motorok impulzusa megegyezik.}
+    \label{fig:regsemprog}
+\end{figure}
+A regresszív fajtájú motorok tolóereje kezdetben magas, majd folyamatosan csökken. A semleges fajtájúak közelítőlegesen állandó tolóerőt biztosínak. A progresszív típusúak végül pedig
+kezdetben kisebb, de egyre növekvő tolóerőt biztosít.
 
 % --------------------------------------------------    
 % Irodalomjegyzék
